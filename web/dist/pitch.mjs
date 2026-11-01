@@ -27,11 +27,13 @@ export const noteName=midi=>names[((midi%12)+12)%12]+(Math.floor(midi/12)-1);
 export const noteFrequency=midi=>440*2**((midi-69)/12);
 export const pitchMidi=frequency=>69+12*Math.log2(frequency/440);
 export const intervals=[['m2','Minor second'],['M2','Major second'],['m3','Minor third'],['M3','Major third'],['P4','Perfect fourth'],['TT','Tritone'],['P5','Perfect fifth'],['m6','Minor sixth'],['M6','Major sixth'],['m7','Minor seventh'],['M7','Major seventh'],['P8','Octave']];
-export function makeChallenge(rootChoice,direction,enabled,previous=null,random=Math.random){
+// Standard guitar: low E2 to E6, random roots E2–C4.
+export const guitarRange={low:40,high:88,roots:Array.from({length:21},(_,i)=>40+i)};
+export function makeChallenge(rootChoice,direction,enabled,previous=null,random=Math.random,range=guitarRange){
   const candidates=[];
   for(const gap of enabled)for(const sign of direction==='mixed'?[1,-1]:[direction==='down'?-1:1]){
-    const roots=rootChoice==='random'?Array.from({length:21},(_,i)=>40+i):[Number(rootChoice)];
-    for(const root of roots){const target=root+gap*sign;if(target>=40&&target<=88)candidates.push({root,target,gap,sign});}
+    const roots=rootChoice==='random'?range.roots:[Number(rootChoice)];
+    for(const root of roots){const target=root+gap*sign;if(target>=range.low&&target<=range.high)candidates.push({root,target,gap,sign});}
   }
   if(!candidates.length)return null;
   const different=candidates.filter(c=>!previous||c.root!==previous.root||c.target!==previous.target);

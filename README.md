@@ -16,6 +16,14 @@ Use the instrument/Hi-Z input, a clean signal, and one note at a time. Tune to A
 
 Ascending, descending, and mixed directions are supported. Notes stay at or above standard guitar low E2; low fixed roots may exclude some descending intervals. Select a higher root for those exercises. The app reports when no selected interval is playable.
 
+## Piano mode
+
+Open http://localhost:8765/piano.html, or use the **Piano** tab in the header. Connect a digital piano over USB, click **Connect piano**, and allow MIDI access. Web MIDI works in Chrome and Edge; Firefox needs a site permission add-on, and Safari has no MIDI support. Close DAWs or other apps holding the piano first, since some systems let only one app open a MIDI device.
+
+Each key press is judged right away against the exact octave. Playing the root is never counted as a mistake. The on-screen keyboard shows the root, the key you played (correct or incorrect), and the answer once revealed. You can also click its keys to practice without a cable.
+
+Keys make a sound in the browser, including on-screen clicks; velocity and the sustain pedal are respected. **Sound** chooses between the recorded Salamander Grand Piano (`web/dist/samples/piano/`, CC BY 3.0, see `credits.html`; one recording every three semitones from A0 to C8, pitch-shifted at most one semitone) and a synthesized soft tone, which is also the fallback while recordings load. Turn **Play sound for keys** off if your piano's own speakers are on. **Ear training** mode plays the root and then the interval, hides the interval name, and asks you to play the second note back; **▶ Hear interval** replays it. The root changes each round by default.
+
 ## Verification
 
 ```sh
