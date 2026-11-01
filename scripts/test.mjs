@@ -40,3 +40,21 @@ for(let t=0;t<=250;t+=50)direct.feed(noteFrequency(49),t);
 for(let t=300;t<=500;t+=50)direct.feed(null,t);
 direct.feed(noteFrequency(49),550);assert.equal(direct.progress,0,'Long dropouts reset the hold');
 console.log('Passed direct-answer and brief-dropout regressions.');
+
+const {pianoRange,PianoEngine,parseMidi,describeInterval,keyboardWindow,isBlack}=await import('../web/dist/piano.mjs');
+assert.deepEqual(parseMidi([0x90,60,100]),{type:'on',note:60,velocity:100});
+assert.deepEqual(parseMidi([0x93,60,0]),{type:'off',note:60},'Note-on with velocity 0 is a release on any channel');
+assert.deepEqual(parseMidi([0x80,60,64]),{type:'off',note:60});
+assert.deepEqual(parseMidi([0xb0,64,127]),{type:'pedal',down:true});assert.deepEqual(parseMidi([0xb2,64,0]),{type:'pedal',down:false});assert.equal(parseMidi([0xb0,1,90]),null,'Other controllers are ignored');assert.equal(parseMidi([0xfe]),null,'Active sensing is ignored');
+const pc={root:60,target:64,gap:4,sign:1},p=new PianoEngine(pc);
+assert.equal(p.press(60),'reference','Root is never a mistake');assert.equal(p.press(63),'wrong');assert.equal(p.press(76),'octave');
+assert.equal(p.press(64),'correct');assert.equal(p.press(64),'ignored','Success counts once');
+const pr=new PianoEngine(pc,{requireRoot:true});
+assert.equal(pr.press(64),'wrong-root','Target cannot bypass root');assert.equal(pr.press(60),'root');assert.equal(pr.press(60),'reference');assert.equal(pr.press(64),'correct');
+assert.equal(new PianoEngine(null).press(60),'ignored');
+assert.equal(describeInterval(60,64),'major third above C4');assert.equal(describeInterval(60,57),'minor third below C4');
+assert.equal(describeInterval(60,72),'octave above C4');assert.equal(describeInterval(60,76),'major third + 1 octave above C4');assert.equal(describeInterval(60,84),'2 octaves above C4');
+for(const root of pianoRange.roots){const w=keyboardWindow(root);assert.ok(w.low<=root-12&&w.high>=root+12&&!isBlack(w.low)&&!isBlack(w.high),`Window for ${root}`);}
+for(let i=0;i<200;i++){const q=makeChallenge('random','mixed',[1,6,11,12],null,Math.random,pianoRange);assert.ok(q.root>=48&&q.root<=72&&q.target>=21&&q.target<=108);const w=keyboardWindow(q.root);assert.ok(q.target>=w.low&&q.target<=w.high,'Target is on the visible keyboard');}
+assert.ok(makeChallenge('48','down',[12],null,Math.random,pianoRange),'Piano allows roots below guitar range');
+console.log('Passed piano MIDI parsing, judging, root-first order, interval naming, keyboard window, and piano range.');
